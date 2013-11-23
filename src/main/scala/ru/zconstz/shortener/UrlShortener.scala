@@ -4,9 +4,6 @@ import akka.actor.Actor
 import spray.routing._
 import spray.http._
 import MediaTypes._
-import spray.json._
-import DefaultJsonProtocol._
-import spray.httpx.SprayJsonSupport
 
 class UrlShortenerActor extends Actor with UrlShortenerService {
 
@@ -15,14 +12,11 @@ class UrlShortenerActor extends Actor with UrlShortenerService {
   def receive = runRoute(myRoute)
 }
 
-case class Entity2(value:String, value2: String) extends SprayJsonSupport
-
-object MyJsonProtocol extends DefaultJsonProtocol {
-  implicit val colorFormat = jsonFormat2(Entity2)
-}
-import MyJsonProtocol._
 
 trait UrlShortenerService extends HttpService {
+
+  import HttpEntities._
+  import HttpEntities.JsonProtocol._
 
   val myRoute =
     path("") {
@@ -38,10 +32,71 @@ trait UrlShortenerService extends HttpService {
         }
       }
     } ~
-    path("json"){
+    path("token") {
       get {
-        respondWithMediaType(`application/json`) {
-          complete(Entity2("10", "20"))
+        parameters("user_id", "secret").as(TokenGetRequest) { request =>
+          respondWithMediaType(`application/json`) {
+            complete(TokenGetResponse(s"stupid token: ${request.userId}-${request.secret}"))
+          }
+        }
+      }
+    } ~
+    path("link") {
+      get {
+        parameters("token", "offset"?, "limit"?).as(LinkGetRequest) { request =>
+          respondWithMediaType(`application/json`) {
+            complete(List(Link("123", "http://www.google.com"), Link("234", "http://www.yahoo.com")))
+          }
+        }
+      } ~
+      post {
+        parameters("token", "url", "code"?, "folder_id"?).as(LinkPostRequest) { request =>
+          respondWithMediaType(`application/json`) {
+            complete(List(Link("123", "http://www.google.com")))
+          }
+        }
+      }
+    } ~
+    path("link" / Segment) { code =>
+      get {
+        parameter("token").as(LinkByCodeGetRequest) { request =>
+          respondWithMediaType(`application/json`) {
+            complete(LinkByCodeGetResponse(Link(s"$code", "http://www.google.com"), Some("folderId"), 10))
+          }
+        }
+      } ~
+      post {
+        parameter("referer", "remote_ip", "other_stats"?).as(LinkByCodePostRequest) { request =>
+          respondWithMediaType(`application/json`) {
+            complete(LinkByCodePostResponse("linkPathThrough"))
+          }
+        }
+      }
+    } ~
+    path("link" / Segment / "clicks") { code =>
+      get {
+        parameters("token", "offset", "limit").as(LinkByCodeClicksGetRequest) { request =>
+          respondWithMediaType(`application/json`) {
+            complete(List(Click("11", "22", "33"), Click("11", "22", "33")))
+          }
+        }
+      }
+    } ~
+    path("folder") {
+      get {
+        parameters("token").as(FolderGetRequest) { request =>
+          respondWithMediaType(`application/json`) {
+            complete(List(Folder("1223", "shortens")))
+          }
+        }
+      }
+    } ~
+    path("folder" / Segment) { id =>
+      get {
+        parameters("token", "offset"?, "limit"?).as(FolderByIdGetRequest) { request =>
+          respondWithMediaType(`application/json`) {
+            complete(List(Link("1223", "http://shortens")))
+          }
         }
       }
     }

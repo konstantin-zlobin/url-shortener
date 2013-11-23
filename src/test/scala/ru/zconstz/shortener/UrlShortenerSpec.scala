@@ -28,5 +28,11 @@ class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShorte
         responseAs[String] === "HTTP method not allowed, supported methods: GET"
       }
     }
+
+//    "get link" in {
+//      Get("link"). ~> myRoute ~> check {
+//
+//      }
+//    }
   }
 }

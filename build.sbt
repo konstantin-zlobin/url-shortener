@@ -32,3 +32,5 @@ scalacOptions ++= Seq(
   "-target:jvm-1.7",
   "-encoding", "UTF-8"
 )
+
+seq(Revolver.settings: _*)
