@@ -11,10 +11,10 @@ object HttpEntities {
   case class TokenGetRequest(userId: String, secret: String)
   case class TokenGetResponse(token: String) extends SprayJsonSupport
 
-  case class LinkPostRequest(token: String, url: String, code: Option[String], folderId: Option[String])
+  case class LinkPostRequest(token: String, url: String, code: Option[String], folder_id: Option[String]) extends SprayJsonSupport
   type LinkPostResponse = Link
 
-  case class LinkByCodePostRequest(referrer: String, remoteIp: String, otherStats: Option[String])
+  case class LinkByCodePostRequest(referrer: String, remote_ip: String, other_stats: Option[String]) extends SprayJsonSupport
   case class LinkByCodePostResponse(linkPathThrough: String) extends SprayJsonSupport
 
   case class LinkByCodeGetRequest(token:String)
@@ -38,6 +38,8 @@ object HttpEntities {
 
   object JsonProtocol extends DefaultJsonProtocol {
     implicit val _tokenGetResponse = jsonFormat1(TokenGetResponse)
+    implicit val _linkPostRequest = jsonFormat4(LinkPostRequest)
+    implicit val _linkByCodePostRequest = jsonFormat3(LinkByCodePostRequest)
     implicit val _linkResponse = jsonFormat2(Link)
     implicit val _linkByCodePostResponse = jsonFormat1(LinkByCodePostResponse)
     implicit val _linkByCodeGetResponse = jsonFormat3(LinkByCodeGetResponse)

@@ -50,7 +50,7 @@ trait UrlShortenerService extends HttpService {
         }
       } ~
       post {
-        parameters("token", "url", "code"?, "folder_id"?).as(LinkPostRequest) { request =>
+        entity(as[LinkPostRequest]) { request =>
           respondWithMediaType(`application/json`) {
             complete(List(Link("123", "http://www.google.com")))
           }
@@ -66,7 +66,7 @@ trait UrlShortenerService extends HttpService {
         }
       } ~
       post {
-        parameter("referer", "remote_ip", "other_stats"?).as(LinkByCodePostRequest) { request =>
+        entity(as[LinkByCodePostRequest]) { request =>
           respondWithMediaType(`application/json`) {
             complete(LinkByCodePostResponse("linkPathThrough"))
           }
