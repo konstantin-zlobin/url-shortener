@@ -9,7 +9,7 @@ import ru.zconstz.shortener.HttpEntities.{FolderByIdGetRequest, FolderGetRequest
 class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShortenerService {
   def actorRefFactory = system
 
-  "MyService" should {
+  "UrlShortenerService" should {
 
     "return a greeting for GET requests to the root path" in {
       Get() ~> myRoute ~> check {
