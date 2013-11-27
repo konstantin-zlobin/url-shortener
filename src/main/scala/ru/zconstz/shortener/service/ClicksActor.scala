@@ -10,11 +10,11 @@ import java.sql.Date
 class ClicksActor extends Actor {
   def receive = {
     case (code: String, LinkByCodePostRequest(referer, remoteIp, otherStats)) => {
-      dataBase.withTransaction {
+      sender ! dataBase.withTransaction {
         implicit session: Session =>
           Query(Links).where(_.code === code).firstOption match {
             case Some((id, url, linkCode, userId, folderId)) => {
-              Clicks.autoInc.insert(None, new Date(new java.util.Date().getTime), referer, remoteIp, otherStats, id)
+              Clicks.autoInc.insert(new Date(new java.util.Date().getTime), referer, remoteIp, otherStats, id)
               Right(LinkByCodePostResponse(url))
             }
             case None => Left(s"Error: Link with code = $code is not found!")

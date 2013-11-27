@@ -37,7 +37,7 @@ class LinkActor extends Actor {
                 case Some(folderId) if Query(Folders).where(_.id === folderId).firstOption.isEmpty =>
                   Left("Error: Unknown folder")
                 case _ => {
-                  Links.autoInc.insert(None, url, newLinkCode, user._1, folderOptionId)
+                  Links.autoInc.insert(url, newLinkCode, user._1, folderOptionId)
                   Right(Link(url, newLinkCode))
                 }
               }

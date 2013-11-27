@@ -25,7 +25,7 @@ object DataBaseSchema {
 
     def * = id ~ title ~ userId
 
-    def autoInc = id.? ~ title ~ userId returning id
+    def autoInc = title ~ userId returning id
 
     def user = foreignKey("USER_FK", userId, Users)(_.id)
   }
@@ -43,7 +43,7 @@ object DataBaseSchema {
 
     def * = id ~ url ~ code ~ userId ~ folderId
 
-    def autoInc = id.? ~ url ~ code ~ userId ~ folderId returning id
+    def autoInc = url ~ code ~ userId ~ folderId returning id
 
     def user = foreignKey("USER_FK", userId, Users)(_.id)
 
@@ -65,7 +65,7 @@ object DataBaseSchema {
 
     def * = id ~ date ~ referer ~ remoteIp ~ otherStats ~ linkId
 
-    def autoInc = id.? ~ date ~ referer ~ remoteIp ~ otherStats ~ linkId returning id
+    def autoInc = date ~ referer ~ remoteIp ~ otherStats ~ linkId returning id
 
     def link = foreignKey("LINK_FK", linkId, Links)(_.id)
   }
