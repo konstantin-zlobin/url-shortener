@@ -9,24 +9,25 @@ import ru.zconstz.shortener.http.HttpEntities._
 import akka.actor.{Actor, Props, ActorRef}
 import ru.zconstz.shortener.service.{LinkActor, TokenActor}
 import ru.zconstz.shortener.http.HttpEntities.TokenGetRequest
+import akka.testkit.TestActorRef
 
 class TokenFakeActor extends Actor {
   def receive = {
-    case TokenGetRequest(userId, secret) => TokenGetResponse("12345")
+    case TokenGetRequest(userId, secret) => sender ! TokenGetResponse("12345")
   }
 }
 
 class LinkFakeActor extends Actor {
   def receive = {
-    case LinkGetRequest(token, offset, limit) => List(Link("http://google.com", "123DF34"))
-    case LinkPostRequest(token, url, proposedCode, folder_id) => Right(Link("http://google.com", "123DF34"))
+    case LinkGetRequest(token, offset, limit) => sender ! List(Link("http://google.com", "123DF34"))
+    case LinkPostRequest(token, url, proposedCode, folder_id) => sender ! Right(Link("http://google.com", "123DF34"))
   }
 }
 
 class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShortenerService {
 
-  override lazy val tokenActor: ActorRef = system.actorOf(Props[TokenFakeActor])
-  override lazy val linkActor: ActorRef = system.actorOf(Props[LinkFakeActor])
+  override lazy val tokenActor: ActorRef = TestActorRef(Props[TokenFakeActor])
+  override lazy val linkActor: ActorRef = TestActorRef(Props[LinkFakeActor])
 
   def actorRefFactory = system
 
@@ -101,7 +102,7 @@ class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShorte
 
     "POST /link" in {
       Post("/link", HttpEntity(MediaTypes.`application/json`,
-          """{"token":"222", "url":"http://google.com", "code":"123", "folder_id":"55"}""")) ~> myRoute ~> check {
+          """{"token":"222", "url":"http://google.com", "code":"123", "folder_id": 55}""")) ~> myRoute ~> check {
         status === OK
         handled must beTrue
         responseAs[String] must not be empty
@@ -110,7 +111,7 @@ class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShorte
 
     "POST /link/123" in {
       Post("/link/123", HttpEntity(MediaTypes.`application/json`,
-        """{"referrer":"jsfkje", "remote_ip":"11:12:13:14", "other_stats": "other..."}""")) ~> myRoute ~> check {
+        """{"referer":"jsfkje", "remote_ip":"11:12:13:14", "other_stats": "other..."}""")) ~> myRoute ~> check {
         status === OK
         handled must beTrue
         responseAs[String] must not be empty

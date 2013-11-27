@@ -16,7 +16,7 @@ object HttpEntities {
 
   type LinkPostResponse = Link
 
-  case class LinkByCodePostRequest(referrer: String, remote_ip: String, other_stats: Option[String]) extends SprayJsonSupport
+  case class LinkByCodePostRequest(referer: String, remote_ip: String, other_stats: Option[String]) extends SprayJsonSupport
 
   case class LinkByCodePostResponse(linkPathThrough: String) extends SprayJsonSupport
 
@@ -38,7 +38,7 @@ object HttpEntities {
 
   type FolderGetResponse = List[Folder]
 
-  case class Click(date: String, referrer: String, remoteIp: String) extends SprayJsonSupport
+  case class Click(date: String, referer: String, remoteIp: String) extends SprayJsonSupport
 
   case class LinkByCodeClicksGetRequest(token: String, offset: Int, limit: Int)
 

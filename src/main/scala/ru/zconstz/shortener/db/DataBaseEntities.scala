@@ -53,13 +53,13 @@ object DataBaseEntities {
 
     def date = column[Date]("DATE", NotNull)
 
-    def referrer = column[String]("REFERRER", NotNull)
+    def referer = column[String]("referer", NotNull)
 
     def remoteIp = column[String]("REMOTE_IP", NotNull)
 
     def linkId = column[Long]("LINK_ID", NotNull)
 
-    def * = id ~ date ~ referrer ~ remoteIp ~ linkId
+    def * = id ~ date ~ referer ~ remoteIp ~ linkId
 
     def link = foreignKey("LINK_FK", linkId, Links)(_.id)
   }
