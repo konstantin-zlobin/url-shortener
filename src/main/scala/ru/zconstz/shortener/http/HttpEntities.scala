@@ -22,7 +22,7 @@ object HttpEntities {
 
   case class LinkByCodeGetRequest(token: String)
 
-  case class LinkByCodeGetResponse(link: Link, folderId: Option[String], clicks: Int) extends SprayJsonSupport
+  case class LinkByCodeGetResponse(link: Link, folderId: Option[Long], clicks: Int) extends SprayJsonSupport
 
   case class FolderByIdGetRequest(token: String, offset: Option[Int] = Some(0), limit: Option[Int] = Some(const))
 

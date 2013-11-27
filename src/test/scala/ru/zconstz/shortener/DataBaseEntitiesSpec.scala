@@ -2,8 +2,8 @@ package ru.zconstz.shortener
 
 import org.specs2.mutable.Specification
 import scala.slick.session.{Session, Database}
-import ru.zconstz.shortener.db.{DbHolder, DataBaseEntities}
-import DataBaseEntities._
+import ru.zconstz.shortener.db.{DbHolder, DataBaseSchema}
+import DataBaseSchema._
 
 import scala.slick.driver.PostgresDriver.simple._
 import com.typesafe.config.{Config, ConfigFactory}
@@ -15,8 +15,8 @@ class DataBaseEntitiesSpec extends Specification {
     "create functional DDL and fill it with correct test data" in {
       DbHolder.dataBase.withSession {
         implicit session: Session =>
-          DataBaseEntities.reCreateSchema()
-          DataBaseEntities.insertTestData()
+          DataBaseSchema.reCreate()
+          DataBaseSchema.insertTestData()
 
           val joinAll = for {
             click <- Clicks

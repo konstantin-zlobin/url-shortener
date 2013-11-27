@@ -76,14 +76,18 @@ trait UrlShortenerService extends HttpService with ServiceRefs {
       get {
         parameter("token").as(LinkByCodeGetRequest) { request =>
           respondWithMediaType(`application/json`) {
-            complete(LinkByCodeGetResponse(Link(s"$code", "http://www.google.com"), Some("folderId"), 10))
+            complete {
+              (linkActor ? (code, request)).mapTo[Either[String, LinkByCodeGetResponse]]
+            }
           }
         }
       } ~
       post {
         entity(as[LinkByCodePostRequest]) { request =>
           respondWithMediaType(`application/json`) {
-            complete(LinkByCodePostResponse("linkPathThrough"))
+            complete {
+              (clicksActor ? (code, request)).mapTo[Either[String, LinkByCodePostResponse]]
+            }
           }
         }
       }

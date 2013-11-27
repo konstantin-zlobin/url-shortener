@@ -4,15 +4,15 @@ import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import spray.can.Http
 import scala.slick.session.Session
-import ru.zconstz.shortener.db.{DbHolder, DataBaseEntities}
+import ru.zconstz.shortener.db.{DbHolder, DataBaseSchema}
 import ru.zconstz.shortener.http.UrlShortenerActor
 
 object Boot extends App {
 
   DbHolder.dataBase.withSession {
     implicit session: Session =>
-      DataBaseEntities.reCreateSchema()
-      DataBaseEntities.insertTestData()
+      DataBaseSchema.reCreate()
+      DataBaseSchema.insertTestData()
   }
 
   implicit val system = ActorSystem("url-shortener")

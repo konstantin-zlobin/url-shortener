@@ -21,6 +21,15 @@ class LinkFakeActor extends Actor {
   def receive = {
     case LinkGetRequest(token, offset, limit) => sender ! List(Link("http://google.com", "123DF34"))
     case LinkPostRequest(token, url, proposedCode, folder_id) => sender ! Right(Link("http://google.com", "123DF34"))
+    case (code: String, LinkByCodeGetRequest(token)) =>
+      sender ! Right(LinkByCodeGetResponse(Link("http://google.com", code), None, 100))
+  }
+}
+
+class ClicksFakeActor extends Actor {
+  def receive = {
+    case (code: String, LinkByCodePostRequest(referer, remoteIp, otherStats)) =>
+      sender ! Right(LinkByCodePostResponse("http://google.com"))
   }
 }
 
@@ -28,6 +37,7 @@ class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShorte
 
   override lazy val tokenActor: ActorRef = TestActorRef(Props[TokenFakeActor])
   override lazy val linkActor: ActorRef = TestActorRef(Props[LinkFakeActor])
+  override lazy val clicksActor: ActorRef = TestActorRef(Props[ClicksFakeActor])
 
   def actorRefFactory = system
 
@@ -111,7 +121,7 @@ class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShorte
 
     "POST /link/123" in {
       Post("/link/123", HttpEntity(MediaTypes.`application/json`,
-        """{"referer":"jsfkje", "remote_ip":"11:12:13:14", "other_stats": "other..."}""")) ~> myRoute ~> check {
+        """{"referer":"http://wwww.google.com", "remote_ip":"11:12:13:14", "other_stats": "other..."}""")) ~> myRoute ~> check {
         status === OK
         handled must beTrue
         responseAs[String] must not be empty

@@ -6,7 +6,7 @@ import java.sql.Date
 import scala.slick.session.Session
 import scala.slick.jdbc.meta.MTable
 
-object DataBaseEntities {
+object DataBaseSchema {
 
   object Users extends Table[(Long, String)]("USERS") {
     def id = column[Long]("ID", O PrimaryKey, O AutoInc)
@@ -24,6 +24,8 @@ object DataBaseEntities {
     def userId = column[Long]("USER_ID", NotNull)
 
     def * = id ~ title ~ userId
+
+    def autoInc = id.? ~ title ~ userId returning id
 
     def user = foreignKey("USER_FK", userId, Users)(_.id)
   }
@@ -48,23 +50,27 @@ object DataBaseEntities {
     def folder = foreignKey("FOLDER_FK", folderId, Folders)(_.id)
   }
 
-  object Clicks extends Table[(Long, Date, String, String, Long)]("CLICKS") {
+  object Clicks extends Table[(Long, Date, String, String, Option[String], Long)]("CLICKS") {
     def id = column[Long]("ID", O PrimaryKey, O AutoInc)
 
     def date = column[Date]("DATE", NotNull)
 
-    def referer = column[String]("referer", NotNull)
+    def referer = column[String]("REFERER", NotNull)
 
     def remoteIp = column[String]("REMOTE_IP", NotNull)
 
+    def otherStats = column[Option[String]]("OTHER_STATS", Nullable)
+
     def linkId = column[Long]("LINK_ID", NotNull)
 
-    def * = id ~ date ~ referer ~ remoteIp ~ linkId
+    def * = id ~ date ~ referer ~ remoteIp ~ otherStats ~ linkId
+
+    def autoInc = id.? ~ date ~ referer ~ remoteIp ~ otherStats ~ linkId returning id
 
     def link = foreignKey("LINK_FK", linkId, Links)(_.id)
   }
 
-  def reCreateSchema()(implicit session: Session) {
+  def reCreate()(implicit session: Session) {
     val tableList = List(Users, Folders, Links, Clicks)
     for {
       table <- tableList.reverse
@@ -97,11 +103,11 @@ object DataBaseEntities {
     Links.insert(105, "http://en.wikipedia.org/wiki/Country_code_top-level_domain",
       "kul78", 2, None)
 
-    Clicks.insert(1000, Date.valueOf("2013-11-15"), "http://google.com", "10.67.32.101", 100)
-    Clicks.insert(1001, Date.valueOf("2013-11-16"), "http://google.com", "10.67.32.102", 101)
-    Clicks.insert(1002, Date.valueOf("2013-11-17"), "http://google.com", "10.67.32.103", 102)
-    Clicks.insert(1003, Date.valueOf("2013-11-18"), "http://google.com", "10.67.32.104", 103)
-    Clicks.insert(1004, Date.valueOf("2013-11-19"), "http://google.com", "10.67.32.105", 104)
-    Clicks.insert(1005, Date.valueOf("2013-11-20"), "http://google.com", "10.67.32.106", 104)
+    Clicks.insert(1000, Date.valueOf("2013-11-15"), "http://google.com", "10.67.32.101", Some("adroid_id: 786238afgbcd767"), 100)
+    Clicks.insert(1001, Date.valueOf("2013-11-16"), "http://google.com", "10.67.32.102", None, 101)
+    Clicks.insert(1002, Date.valueOf("2013-11-17"), "http://google.com", "10.67.32.103", None, 102)
+    Clicks.insert(1003, Date.valueOf("2013-11-18"), "http://google.com", "10.67.32.104", None, 103)
+    Clicks.insert(1004, Date.valueOf("2013-11-19"), "http://google.com", "10.67.32.105", None, 104)
+    Clicks.insert(1005, Date.valueOf("2013-11-20"), "http://google.com", "10.67.32.106", None, 104)
   }
 }

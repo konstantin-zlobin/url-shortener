@@ -2,8 +2,8 @@ package ru.zconstz.shortener.service
 
 import akka.actor.Actor
 import scala.slick.driver.PostgresDriver.simple._
-import ru.zconstz.shortener.db.{DbHolder, DataBaseEntities}
-import DataBaseEntities._
+import ru.zconstz.shortener.db.{DbHolder, DataBaseSchema}
+import DataBaseSchema._
 import DbHolder._
 import ru.zconstz.shortener.http.HttpEntities.{TokenGetResponse, TokenGetRequest}
 
