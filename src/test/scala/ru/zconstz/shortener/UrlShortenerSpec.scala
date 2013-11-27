@@ -4,9 +4,30 @@ import org.specs2.mutable.Specification
 import spray.testkit.Specs2RouteTest
 import spray.http._
 import StatusCodes._
-import ru.zconstz.shortener.HttpEntities.{FolderByIdGetRequest, FolderGetRequest, LinkByCodeGetRequest}
+import ru.zconstz.shortener.http.{UrlShortenerService, HttpEntities}
+import ru.zconstz.shortener.http.HttpEntities._
+import akka.actor.{Actor, Props, ActorRef}
+import ru.zconstz.shortener.service.{LinkActor, TokenActor}
+import ru.zconstz.shortener.http.HttpEntities.TokenGetRequest
+
+class TokenFakeActor extends Actor {
+  def receive = {
+    case TokenGetRequest(userId, secret) => TokenGetResponse("12345")
+  }
+}
+
+class LinkFakeActor extends Actor {
+  def receive = {
+    case LinkGetRequest(token, offset, limit) => List(Link("http://google.com", "123DF34"))
+    case LinkPostRequest(token, url, proposedCode, folder_id) => Right(Link("http://google.com", "123DF34"))
+  }
+}
 
 class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShortenerService {
+
+  override lazy val tokenActor: ActorRef = system.actorOf(Props[TokenFakeActor])
+  override lazy val linkActor: ActorRef = system.actorOf(Props[LinkFakeActor])
+
   def actorRefFactory = system
 
   "UrlShortenerService" should {

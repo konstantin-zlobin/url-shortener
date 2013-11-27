@@ -1,4 +1,4 @@
-package ru.zconstz.shortener
+package ru.zconstz.shortener.db
 
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.lifted.ColumnOption.{Nullable, NotNull}
@@ -40,6 +40,8 @@ object DataBaseEntities {
     def folderId = column[Option[Long]]("FOLDER_ID", Nullable)
 
     def * = id ~ url ~ code ~ userId ~ folderId
+
+    def autoInc = id.? ~ url ~ code ~ userId ~ folderId returning id
 
     def user = foreignKey("USER_FK", userId, Users)(_.id)
 

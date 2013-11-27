@@ -1,9 +1,16 @@
-package ru.zconstz.shortener
+package ru.zconstz.shortener.http
 
 import akka.actor.Actor
 import spray.routing._
 import spray.http._
 import MediaTypes._
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.language.postfixOps
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import ru.zconstz.shortener.service.ServiceRefs
+import reflect.ClassTag
 
 class UrlShortenerActor extends Actor with UrlShortenerService {
 
@@ -13,10 +20,12 @@ class UrlShortenerActor extends Actor with UrlShortenerService {
 }
 
 
-trait UrlShortenerService extends HttpService {
+trait UrlShortenerService extends HttpService with ServiceRefs {
 
   import HttpEntities._
   import HttpEntities.JsonProtocol._
+
+  implicit val timeout = Timeout(5 seconds)
 
   val myRoute =
     path("") {
@@ -25,7 +34,7 @@ trait UrlShortenerService extends HttpService {
           complete {
             <html>
               <body>
-                <h1>Say hello to <i>spray-routing</i> on <i>spray-can</i>!</h1>
+                <h1>Say hello to <i>url-shortener</i> on <i>spray-can</i>!</h1>
               </body>
             </html>
           }
@@ -34,9 +43,11 @@ trait UrlShortenerService extends HttpService {
     } ~
     path("token") {
       get {
-        parameters("user_id", "secret").as(TokenGetRequest) { request =>
+        parameters("user_id".as[Long], "secret").as(TokenGetRequest) { request =>
           respondWithMediaType(`application/json`) {
-            complete(TokenGetResponse(s"stupid token: ${request.userId}-${request.secret}"))
+            complete {
+              (tokenActor ? request).mapTo[TokenGetResponse]
+            }
           }
         }
       }
@@ -45,14 +56,18 @@ trait UrlShortenerService extends HttpService {
       get {
         parameters("token", "offset"?, "limit"?).as(LinkGetRequest) { request =>
           respondWithMediaType(`application/json`) {
-            complete(List(Link("123", "http://www.google.com"), Link("234", "http://www.yahoo.com")))
+            complete {
+              (linkActor ? request).mapTo[List[Link]]
+            }
           }
         }
       } ~
       post {
         entity(as[LinkPostRequest]) { request =>
           respondWithMediaType(`application/json`) {
-            complete(List(Link("123", "http://www.google.com")))
+            complete {
+              (linkActor ? request).mapTo[Either[String, Link]]
+            }
           }
         }
       }

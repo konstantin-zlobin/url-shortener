@@ -1,4 +1,4 @@
-package ru.zconstz.shortener
+package ru.zconstz.shortener.http
 
 import spray.json.DefaultJsonProtocol
 import spray.httpx.SprayJsonSupport
@@ -8,11 +8,11 @@ object HttpEntities {
 
   case class Link(url: String, code: String) extends SprayJsonSupport
 
-  case class TokenGetRequest(userId: String, secret: String)
+  case class TokenGetRequest(userId: Long, secret: String)
 
   case class TokenGetResponse(token: String) extends SprayJsonSupport
 
-  case class LinkPostRequest(token: String, url: String, code: Option[String], folder_id: Option[String]) extends SprayJsonSupport
+  case class LinkPostRequest(token: String, url: String, code: Option[String], folder_id: Option[Long]) extends SprayJsonSupport
 
   type LinkPostResponse = Link
 
