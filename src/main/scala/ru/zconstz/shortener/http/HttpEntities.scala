@@ -1,7 +1,11 @@
 package ru.zconstz.shortener.http
 
-import spray.json.DefaultJsonProtocol
+import spray.json._
 import spray.httpx.SprayJsonSupport
+import java.util.Date
+import scala.Some
+import java.text.SimpleDateFormat
+import scala.util.Try
 
 object HttpEntities {
   val const = 100
@@ -32,19 +36,30 @@ object HttpEntities {
 
   type LinkGetResponse = List[Link]
 
-  case class Folder(id: String, title: String) extends SprayJsonSupport
+  case class Folder(id: Long, title: String) extends SprayJsonSupport
 
   case class FolderGetRequest(token: String)
 
   type FolderGetResponse = List[Folder]
 
-  case class Click(date: String, referer: String, remoteIp: String) extends SprayJsonSupport
+  case class Click(date: Date, referer: String, remoteIp: String) extends SprayJsonSupport
 
   case class LinkByCodeClicksGetRequest(token: String, offset: Int, limit: Int)
 
   type LinkCodeClickGetResponse = List[Click]
 
   object JsonProtocol extends DefaultJsonProtocol {
+    implicit object JavaUtilDateJsonFormat extends RootJsonFormat[Date] {
+      def dateFormat = new SimpleDateFormat("yyyy-mm-dd")
+      def write(d:Date) = {
+        JsString(dateFormat.format(d))
+      }
+      def read(value: JsValue) = value match {
+        case JsString(dateString) => Try(dateFormat.parse(dateString)).
+          getOrElse(throw new DeserializationException("Bad date format"))
+        case _ => throw new DeserializationException("Date Expected")
+      }
+    }
     implicit val _tokenGetResponse = jsonFormat1(TokenGetResponse)
     implicit val _linkPostRequest = jsonFormat4(LinkPostRequest)
     implicit val _linkByCodePostRequest = jsonFormat3(LinkByCodePostRequest)

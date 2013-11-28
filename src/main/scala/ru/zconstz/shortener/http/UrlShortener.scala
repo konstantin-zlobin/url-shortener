@@ -86,7 +86,7 @@ trait UrlShortenerService extends HttpService with ServiceRefs {
         entity(as[LinkByCodePostRequest]) { request =>
           respondWithMediaType(`application/json`) {
             complete {
-              (clicksActor ? (code, request)).mapTo[Either[String, LinkByCodePostResponse]]
+              (clickActor ? (code, request)).mapTo[Either[String, LinkByCodePostResponse]]
             }
           }
         }
@@ -96,7 +96,9 @@ trait UrlShortenerService extends HttpService with ServiceRefs {
       get {
         parameters("token", "offset", "limit").as(LinkByCodeClicksGetRequest) { request =>
           respondWithMediaType(`application/json`) {
-            complete(List(Click("11", "22", "33"), Click("11", "22", "33")))
+            complete {
+              (clickActor ? (code, request)).mapTo[List[Click]]
+            }
           }
         }
       }
@@ -105,7 +107,9 @@ trait UrlShortenerService extends HttpService with ServiceRefs {
       get {
         parameters("token").as(FolderGetRequest) { request =>
           respondWithMediaType(`application/json`) {
-            complete(List(Folder("1223", "shortens")))
+            complete {
+              (folderActor ? request).mapTo[List[Folder]]
+            }
           }
         }
       }
@@ -114,7 +118,9 @@ trait UrlShortenerService extends HttpService with ServiceRefs {
       get {
         parameters("token", "offset"?, "limit"?).as(FolderByIdGetRequest) { request =>
           respondWithMediaType(`application/json`) {
-            complete(List(Link("1223", "http://shortens")))
+            complete {
+              (folderActor ? (id, request)).mapTo[List[Link]]
+            }
           }
         }
       }

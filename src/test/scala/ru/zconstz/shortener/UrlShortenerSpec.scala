@@ -26,18 +26,29 @@ class LinkFakeActor extends Actor {
   }
 }
 
-class ClicksFakeActor extends Actor {
+class ClickFakeActor extends Actor {
   def receive = {
     case (code: String, LinkByCodePostRequest(referer, remoteIp, otherStats)) =>
       sender ! Right(LinkByCodePostResponse("http://google.com"))
+    case (code:String, LinkByCodeClicksGetRequest(token, offset, limit)) =>
+      sender ! List(Click(new java.util.Date(), "http://google.com", "16.19.100.15"))
   }
 }
+
+class FolderFakeActor extends Actor {
+  def receive = {
+    case FolderGetRequest(token) => sender ! List(Folder(100, "favorites"))
+    case (id, FolderByIdGetRequest(token, offset, limit)) => sender ! List(Link("http://google.com", "efg55H"))
+  }
+}
+
 
 class UrlShortenerSpec extends Specification with Specs2RouteTest with UrlShortenerService {
 
   override lazy val tokenActor: ActorRef = TestActorRef(Props[TokenFakeActor])
   override lazy val linkActor: ActorRef = TestActorRef(Props[LinkFakeActor])
-  override lazy val clicksActor: ActorRef = TestActorRef(Props[ClicksFakeActor])
+  override lazy val clickActor: ActorRef = TestActorRef(Props[ClickFakeActor])
+  override lazy val folderActor: ActorRef = TestActorRef(Props[FolderFakeActor])
 
   def actorRefFactory = system
 
