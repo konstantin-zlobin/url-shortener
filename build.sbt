@@ -20,10 +20,11 @@ libraryDependencies ++= {
         "io.spray"            %   "spray-testkit" % sprayV,
         "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
         "com.typesafe.akka"   %%  "akka-testkit"  % akkaV,
+        "com.typesafe.akka"   %% "akka-slf4j"     % akkaV,
         "com.typesafe.slick"  %%  "slick"         % "1.0.0",
-        "org.slf4j"           %   "slf4j-nop"     % "1.6.4",
         "postgresql"          %   "postgresql"    % "9.1-901.jdbc4",
         "com.typesafe"        %   "config"        % "1.0.2",
+        "ch.qos.logback"      %  "logback-classic" % "1.0.13",
         "org.specs2"          %%  "specs2"        % "2.2.3" % "test")
   }
 
